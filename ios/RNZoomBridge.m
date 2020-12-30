@@ -164,6 +164,37 @@ RCT_EXPORT_METHOD(
     }
 }
 
+RCT_EXPORT_METHOD(
+    joinMeetingWithWebinarToken: (NSString *)displayName
+    withMeetingNo: (NSString *)meetingNo
+    withWebinarToken: (NSString *)webinarToken
+    withResolve: (RCTPromiseResolveBlock)resolve
+    withReject: (RCTPromiseRejectBlock)reject
+)
+{
+    @try {
+      meetingPromiseResolve = resolve;
+      meetingPromiseReject = reject;
+    
+      MobileRTCMeetingService *ms = [[MobileRTC sharedRTC] getMeetingService];
+      if (ms) {
+        ms.delegate = self;
+    
+        NSDictionary *paramDict = @{
+          kMeetingParam_Username: displayName,
+          kMeetingParam_MeetingNumber: meetingNo,
+          kMeetingParam_WebinarToken: webinarToken
+        };
+        
+        MobileRTCMeetError joinMeetingResult = [ms joinMeetingWithDictionary:paramDict];
+        NSLog(@"joinMeeting, joinMeetingResult=%d", joinMeetingResult);
+      }
+    } @catch (NSError *ex) {
+        reject(@"ERR_UNEXPECTED_EXCEPTION", @"Executing joinMeeting", ex);
+    }
+}
+
+
 - (void)onMobileRTCAuthReturn:(MobileRTCAuthError)returnValue {
   NSLog(@"nZoomSDKInitializeResult, errorCode=%d", returnValue);
   if(returnValue != MobileRTCAuthError_Success) {
